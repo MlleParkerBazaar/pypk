@@ -1,0 +1,262 @@
+
+Py-port knocking project
+========================
+
+Date: 2006-02-01 (last update: 2006-11-26)
+Name: Py-Port Knocking project
+Current version: v0.2
+Status: beta
+Programming language: Python
+License: GNU
+Author: billiejoex (ITA)
+Mail: billiejoex@gmail.com
+Web: http://billiejoex.altervista.org
+
+What is Py-port Knocking project (pypk)?
+========================================
+
+Pypk is a Python implementation of a port knocking system application, a method used to 
+dynamically open a specified port on a server in case that a certain IP attempts to send 
+packets on a set of prespecified ports.
+Once a correct sequence of connection is received by the "knock daemon", in a certain 
+amount of time, the firewall rules table is dynamically modified to allow the "knocker" 
+to connect over a certain port(s).
+Generally, port knocking is most often used to determine access to port 22, the Secure 
+Shell (SSH) port, but can also be used to hide other "private" services like TELNET, VNC 
+and many others.
+
+How does it work?
+=================
+
+Knockd is the daemon that must be started on the server. It must be configured by 
+specifying:
+
+    * An ethernet interface(s) on which the daemon has to listen on (e.g. eth1).
+    * A general timeout value (expressed in seconds) within the sequences has to take 
+      place (e.g. 5 seconds).
+    * A TCP (SYN) packet sequence (e.g. 5200, 5400, 5600) that, if satisfied, executes 
+      a command.
+    * The command that, once executed, opens a port (e.g. 22 TCP) by modifying firewall 
+      rules table (e.g. /sbin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT) 
+      allowing access only for the IP that supplied the correct knock.
+    * Optional, but strongly recommended, another sequence (e.g. 10100, 10200, 10300) 
+      including the command used to close the port (e.g. /sbin/iptables -D INPUT -s %IP% 
+      -p tcp --dport 22 -j ACCEPT).
+
+Other sets of sequences can be optionally used depending on the number of service you want 
+to protect. The client that satisfied a sequence receives no acknowledgement because a 
+"pure" port knocking system implementation precludes any interaction between client and 
+server (in practical terms this is traduced in an additional protection against massive 
+brute force attacks).
+
+fig. 1 - A classical knocking session example:
+
+ ------------------------------------------------------------------------
+|   Client   |  IP src  |   IP dst   | TCP type | TCP dst |    Server    |
+| (10.0.0.1) |          |            |   flag   |   port  | (10.0.0.252) |
+ ------------------------------------------------------------------------
+|     -->    | 10.0.0.1 | 10.0.0.252 |    SYN   |   5200  |     OK       |
+|            |          |            |          |         |              |
+ ------------------------------------------------------------------------
+|     -->    | 10.0.0.1 | 10.0.0.252 |    SYN   |   5400  |     OK       |
+|            |          |            |          |         |              |
+ ------------------------------------------------------------------------
+|     -->    | 10.0.0.1 | 10.0.0.252 |    SYN   |   5600  |     OK       |
+|            |          |            |          |         |              |
+ ------------------------------------------------------------------------
+| Server: Correct sequence received! It matches with [open SSH] name     | 
+| sequence! Let's execute: /sbin/iptables -I INPUT -s 10.0.0.1 -p tcp    |
+| --dport 22 -j ACCEPT                                                   |
+ ------------------------------------------------------------------------
+
+ ------------------------------------------------------------------------
+|   Client   |  IP src  |   IP dst   | TCP type | TCP dst |    Server    |
+| (10.0.0.1) |          |            |   flag   |   port  | (10.0.0.252) |
+ ------------------------------------------------------------------------
+|     -->    | 10.0.0.1 | 10.0.0.252 |    SYN   |   2543  |     OK       |
+|            |          |            |          |         |              |
+ ------------------------------------------------------------------------
+|     -->    | 10.0.0.1 | 10.0.0.252 |    SYN   |   2630  |     OK       |
+|            |          |            |          |         |              |
+ ------------------------------------------------------------------------
+|     -->    | 10.0.0.1 | 10.0.0.252 |    SYN   |  52870  |     OK       |
+|            |          |            |          |         |              |
+ ------------------------------------------------------------------------
+| Server: Correct sequence received! It matches with [close SSH] name    |
+| sequence! Let's execute: /sbin/iptables -D INPUT -s 10.0.0.1 -p tcp    |
+| --dport 22 -j ACCEPT                                                   |
+ ------------------------------------------------------------------------
+
+
+Installation
+============
+
+To run pypk you'll need:
+
+    * Python interpreter (recommended version: 2.4).
+    * Libcap 0.7.2 or newer if you're running a *NIX platform.
+    * Winpcap 3.1, if you're running a Windows platform.
+    * Pcapy 0.10.4 extension.
+    * Pywin32 extension (optional) if you're running a Windows platform.
+
+...or only Winpcap 3.1 if you plan to use win32 installer / win32 precompiled binaries.
+You can install dependencies from sources (it may requires the installation of third-party 
+packages like gcc, g++ or libc6) or use a package managers like apt, yum, etc...
+If you're using a UNIX like platform, first install all dependencies, then unpack pypk 
+distribution into a directory and run "python setup.py install":
+
+> root@dst:~# tar -zxvf [src]-pypk_v0.2.tar.gz
+> root@dst:~# cd [src]-pypk_v0.2
+> root@dst:~/[src]-pypk_v0.2# python setup.py install
+
+If you're using a Windows system just run pypk win32 installer release or use win32 binaries 
+distribution.
+
+Usage examples
+==============
+
+First of all you need to configure knock daemon depending on your needs by editing knockd.conf
+ file (/etc/knockd.conf on all UNIX like OSes).
+The example below illustrates a knockd running on a UNIX platform.
+It listens on eth0 ethernet interface and uses iptables command to modify firewall rules table.
+Note that all lines beginning with the '#' character (comment) are ignored.
+All lines beginning with " [ " character are considered sequences.
+Every sequence must contain at least two entries: "sequence=<seq>" and "commnad=<cmd>".
+The optional keyword %IP% contained in command's argument is referred to knocker's IP source 
+address and it will be automatically translated by knockd at run time.
+keeps_count=[Open SSH] option used in this examples means that knockd will execute [Close SSH] 
+sequence's command for every time [Open SSH] sequence is being satisfied in the past. For 
+example: if knocker completes [Open SSH] sequence for 3 times, then [Close SSH] just for one 
+time, [Close SSH] sequence's command will be executed for 3 times.
+
+> # knockd.conf
+> # Default ethernet interface on which knockd listens on
+> interface=eth0
+> # Log file location
+> logfile=/var/log/knockd.log
+> # Sequence timeout
+> timeout=5
+> # Sequence number 1
+> [open SSH]
+> sequence=5100,5200,5300
+> command=/sbin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
+> # Sequence number 2
+> [close SSH]
+> sequence=7555,7560,7565
+> command=/sbin/iptables -D INPUT -s %IP% -p tcp --dport 22 -j ACCEPT keeps_count=[open SSH]
+
+This is an example configuration of a knockd running on a Windows platform. Knockd listens on 
+all ethernet interfaces thanks to special argument all used in the interface statement, and 
+use netsh.exe utility to modify Windows firewall rules table (note: netsh.exe is available 
+only on some latest Windows NT versions).
+
+> # knockd.conf
+> # Default ethernet interface on which knockd listens on
+> interface=ALL
+> # Log file location
+> logfile=knockd.log
+> # Sequence timeout
+> timeout=5
+> # Sequence number 1
+> [open TELNET]
+> sequence=5000,5005,5005
+> command=C:\WINDOWS\system32\netsh firewall add portopening protocol=TCP port=23 name=TELNET 
+mode=ENABLE scope=CUSTOM addresses=%IP%
+> # Sequence number 2
+> [close TELNET]
+> sequence=2000,2100,2200
+> command=C:\WINDOWS\system32\netsh firewall delete portopening protocol=TCP port=23
+
+Once you modified knockd.conf just run knockd if you're on Linux or on all other POSIX 
+platforms. If you're using Windows run knockd.exe instead.
+Knock daemon should start listening on ethernet interface(s) waiting for sequences:
+
+> root@dst:~# knockd
+Py-port knock daemon v0.2
+Started at: 2006-Nov-07 02:32:00
+Total available interfaces: 3
+Listening on:
+
+Name: eth0
+Net: 10.0.0.0
+Mask: 255.255.255.0
+
+Finally move to the client and use knocker / knocker.exe to send sequences:
+
+> user@dst:~# knocker 10.0.0.1 1000,1001,1002
+Knocked on 10.0.0.1:1000
+Knocked on 10.0.0.1:1001
+Knocked on 10.0.0.1:1002
+user@dst:~#
+
+If sequence is right (knockd sends no acknowledgements) now you should be able to connect
+over SSH / Telnet port.
+
+Portability
+===========
+
+Pypk has been tested under Linux Debian, Linux Ubuntu and Windows XP SP2 systems and is 
+known to work there, but it ought to work on any system where Python and libpcap are 
+available (MacOS, BSD*, Sun Solaris, POSIX in general). If you have one of these platforms 
+I would be very thankful if you could give me a report of your experience with pypk.
+
+Known bug(s)
+============
+
+None, at the moment.
+
+Some ideas (extra features not yet implemented)
+===============================================
+
+    * Authentication (take a look at TODO.TXT file contained in pypk distribution for more 
+      details. It contains some ideas about adding various form of authentication at pypk).
+    * UDP and ICMP protocols support to enlarge the range of possible sequence combinations.
+    * Implementation of a fully customizable system permitting the user to manage a large gamma 
+      of packet's header parameters on different layers or their payload, enlarging the range of 
+      possible sequence combinations. Some examples:
+      IP: TTL, id, src...
+      TCP: type (SYN, ACK, RST, FIN...), src_port, seq_n, opts...
+      ICMP: type (ECHO, ECHO_REPLY, PORT_UNREACHABLE...), code, id...
+
+Useful links
+============
+
+www.portknocking.org - A lot of informations about port knocking.	
+
+
+
+FAQs
+====
+
+On which network types does knock daemon work?
+Which network adapters are supported by knock daemon?
+=====================================================
+
+Knock daemon only works on ethernet based networks. If you're using something different from an
+ ethernet interface card, like a modem, knock daemon won't work.
+
+Does knock daemon can work on loopback (127.0.0.1) devices?
+===========================================================
+
+Excepting Windows systems knock daemon can work on loopback devices. This is a limitation of 
+Windows systems and not of pcap API.
+
+I have a process listening on TCP port X. Can I use that port inside a sequence?
+================================================================================
+
+Theorically you can because "knocker" utility send unique TCP SYN packets and knockd accept only
+that types. Practically, if another process establishes a connection over port X, knockd will 
+assume the first SYN packet of the three-way handshake process as a "knock" and this could cause 
+problems if a knocking session is taking place in that time.
+
+How do I run knock daemon in background on Windows?
+===================================================
+
+If you're using sources just run (from command prompt) knockdw.pyw instead of knockd.py. If you're 
+using win32 binaries use knockdw.exe instead of knockd.exe.
+
+
+
+EOF
+
+billiejoex 2006-10-26 

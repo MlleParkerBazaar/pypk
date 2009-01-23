@@ -1,0 +1,29 @@
+
+History
+=======
+
+
+Version: v0.2 - Date: 2006-11-12
+--------------------------------
+
+  UPDATE
+   - knockd source code was rewritten.
+   - setup.py installer for UNIX OSes.
+   - installer for Windows platforms.
+   - pypk icon for windows binaries.
+   - man page for UNIX OSes.
+   - new "keep_count" option can be used in knockd.conf (see it for details). 
+   - knocker: new -i (interactive) option available.
+   - used the new ImpactPacket.py extension module updated at the latest version 
+     (v1.9 2006/05/23). Previous pypk version used ImpactPacket v1.2
+     (updated at 2003/10/27).
+   - added a filter to accept only TCP packets having SYN flag activated.
+   - thread-safe shared-objects are now used to perform timeout operations.
+   - thread-safe objects are now used in "remote_table" class.
+   - Windows OSes: during start-up process knockd checks if other knockd 
+     instances are currently running.
+
+Version: v0.1 - Date: 2006-01-02
+--------------------------------
+
+   - first proof of concept beta release.

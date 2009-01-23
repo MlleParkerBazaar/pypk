@@ -1,0 +1,15 @@
+
+Dependencies
+------------
+
+  - python2.4
+  - python2.4-dev
+  - libpcap0.8 
+  - libpcap0.8-dev 
+  - pcapy-0.10.4
+
+
+Install
+-------
+
+  Just run "/usr/bin/python setup.py install"

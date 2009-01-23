@@ -1,0 +1,65 @@
+
+To do
+-----
+
+ - possibility to run knockd as Windows NT service.
+ - run knockd as a daemon on UNIX systems.
+ - init scripts.
+ - syslog on Windows NT and UNIX.
+ - deb package for Debian/based systems.
+ - rpm package for all non-Debian systems.
+ - support for OSes doesn't supporting multiple threading.
+ - knocker.py: use cmd.Cmd() for interactive session.
+
+
+Some ideas
+----------
+
+ - UDP and ICMP protocols support to enlarge the range of possible sequence combinations.
+
+ - Implement a fully customizable system and permit the user to manage a large gamma of 
+   packet's header parameters on different layers or their payload, enlarging the range of 
+   possible sequence combinations. Some examples:
+   IP: TTL, id, src...
+   TCP: type (SYN, ACK, RST, FIN...), src_port, seq_n, opts...
+   ICMP: type (ECHO, ECHO_REPLY, PORT_UNREACHABLE...), code, id...
+
+
+Discussion
+----------
+
+Problem:
+   A MITM (man in the middle) attacker (located, for example, on the client's default gateway)
+   could sniff a sequence and use it on its own. 
+
+Solution 1: interactive challenge/resposne authentication
+
+   - Client satisfy the normal TCP (SYN) sequence.
+   - Once the sequence is satisfied server opens a TCP port allowing access only for the IP that 
+     supplied the correct knock sequence.
+   - Server send an hash challenge through the new TCP connection.
+   - Client sends back a challenge-response: hash(%CHALLENGE% + %PASSWORD%).
+   - Server verify the response. If authentication takes place the command will be executed.
+
+Solution 2: one-way time-based authentication
+
+   Avoiding client/server interaction is a good additional protection against massive brute 
+   force attacks.   
+   To avoid this I thought about a solution based on variable hash digests obtained by 
+   mixing a fixed value (a password) and a variable value (the current time):
+   I'll try to explain this theory as follows:
+   - The client compiles an UDP packet payloading an hash value deriving from the 
+     following values: hash(%CURRENT_GMT_TIME% + %SECRET_PASSWORD%).
+   - The server that receives the packet executes the same hash function, comparing the
+     obtained value with the received payload applying a time-window tolerance == 3 
+     seconds:
+        hash(%CURRENT_GMT_TIME% + 1 + %SECRET_PASSWORD%)
+        hash(%CURRENT_GMT_TIME% + 2 + %SECRET_PASSWORD%)
+        hash(%CURRENT_GMT_TIME% + 3 + %SECRET_PASSWORD%)
+   - If the two hashes matches, server will acquire the correct authentication and then 
+     will verify the knock sequence.
+   Client/Server time synchronization can be granted by a common NTP server used by both 
+   of them. Even if MITM sniff a sequence he can't use it on its own because %LOCAL_TIME%
+   mixed to %LOCAL_IP_ADDRESS% variable makes it possible that the hash value is unique 
+   for every time a new knock occurs, and prevents MITM gaining unauthorized access by 
+   moving on the host's machine or by spoofing its IP address.
