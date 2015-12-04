@@ -1,13 +1,399 @@
-
-What's this?
-------------
-
-  Check doc/Py-port-knocking-project.html
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Py-port knocking project</title>
 
 
 
-
-
-
-
-
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<meta name="keywords" content="Py-port knocking project,ppknock,port knocking,python port knocking">
+	<meta name="description" content="Ppknock is a Python implementation of a port knocking system application, a method used  to dynamically open a specified port on a server in case that a certain IP attempts to  send packets on a set of prespecified ports.">
+	<meta name="author" content="billiejoex"></head><body>
+<table align="center" border="1" cellspacing="0" width="970">
+  <tbody>
+    <tr>
+      <td valign="top" width="550"><table align="center" border="0" height="100%" width="98%">
+        <tbody>
+          <tr>
+            <td valign="top"><br>
+              <table border="0" width="310">
+                <tbody>
+                  <tr>
+                    <td height="50" width="54"><img src="images/pypk48x48.png" height="48" width="48"></td>
+                    <td valign="middle" width="246"><font face="Arial, Helvetica, sans-serif" size="2"><strong><font size="3"><u>Py-port knocking  project</u></font></strong></font></td>
+                  </tr>
+                </tbody>
+              </table>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"><strong>Date:  2006-02-01 (last update: 2006-11-26)<br>
+                Name: Py-Port Knocking project<br>
+                Current version: v0.2<br>
+                Status: beta<br>
+                Programming language: Python<br>
+                License: GNU<br>
+                Author: billiejoex (ITA)<br>
+                Mail:
+<!-- 
+# ascii_converter.py
+s = '<p><a href="mlto:ml_AT_ address" class="style3">ml_AT_ address</a></p>'
+em = ''
+for i in s:
+	em += "%s%.2x" %('%', ord(i))
+-->
+                <script language="JavaScript" type="text/javascript">
+					em=			"%3c%61%20%68%72%65%66%3d%22%6d%61%69%6c%74%6f%3a%62%69%6c%6c%69%65%6a%6f%65%78%40%67%6d%61%69%6c%2e%63%6f%6d%22%3e%62%69%6c%6c%69%65%6a%6f%65%78%40%67%6d%61%69%6c%2e%63%6f%6d%3c%2f%61%3e";
+					document.write (unescape(em + "<br>"));
+                </script>
+                Web: <a href="http://billiejoex.altervista.org/">http://billiejoex.altervista.org</a></strong></font></p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"><strong>What is Py-port Knocking project (pypk)?</strong></font></p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2">Pypk
+is a Python implementation of a port knocking system application, a
+method used to dynamically open a specified port on a server in case
+that a certain IP attempts to send packets on a set of prespecified
+ports. <br>
+                Once a correct sequence of connection is received 
+                by the "knock daemon", in a certain amount of time, the firewall rules table is dynamically modified 
+                to allow the "knocker" to connect over a certain port(s).<br>
+                Generally, port knocking is most often used to determine access to port 22, the <a href="http://en.wikipedia.org/wiki/Secure_Shell" title="Secure Shell">Secure Shell</a> (SSH) port, but can also be used to hide other "private" services like TELNET, VNC and many others. </font></p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"><strong>How 
+                does it work?<br>
+                        <br>
+                Knockd</strong> is the daemon that must be started on the 
+                server. It must be configured by specifying:</font></p>
+              <ul>
+                  <li><font face="Arial, Helvetica, sans-serif" size="2">An ethernet<strong> interface(s)</strong> on which the daemon has to listen on</font> <em><font face="Arial, Helvetica, sans-serif" size="2">(e.g. 
+                    eth1).</font></em></li>
+                <li><font face="Arial, Helvetica, sans-serif" size="2">A general <strong>timeout</strong> value (expressed in seconds) within 
+                  the sequences has to take place <em>(e.g. 5 seconds). </em></font></li>
+                <li><font face="Arial, Helvetica, sans-serif" size="2">A TCP (SYN) 
+                  packet <strong>sequence</strong> <em>(e.g. 5200, 5400, 5600)</em> that, if satisfied, executes a command<em>.</em></font></li>
+                <li><font face="Arial, Helvetica, sans-serif" size="2"> The <strong>command</strong> that, once executed, opens a port (e.g. <strong>22 TCP</strong>) by modifying firewall rules 
+                  table <em> (e.g. /sbin/iptables -I INPUT -s %IP% -p tcp --dport 
+                    22 -j ACCEPT) </em><u>allowing access only for </u></font><u><font face="Arial, Helvetica, sans-serif" size="2">the IP that supplied the  correct knock</font>.</u></li>
+                <li><font face="Arial, Helvetica, sans-serif" size="2"> Optional, 
+                  but strongly recommended, another <strong>sequence</strong> <em>(e.g. 
+                    10100, 10200, 10300) </em>including the <strong>command</strong> used to close the port <em>(e.g. /sbin/iptables -D INPUT 
+                      -s %IP% -p tcp --dport 22 -j ACCEPT).</em></font></li>
+              </ul>
+              <p><font face="Arial, Helvetica, sans-serif" size="2">Other sets of sequences can be optionally used depending on the number of service 
+                you want to protect.</font> <font face="Arial, Helvetica, sans-serif" size="2">The client that satisfied a sequence <u>receives no acknowledgement</u>
+because a "pure" port knocking system implementation precludes any
+interaction between client and server (in practical terms this is
+traduced in an additional protection against massive brute force
+attacks). </font></p>
+              <p><em><font face="Arial, Helvetica, sans-serif" size="2"><strong>fig. 
+                1</strong> - A classical knocking session example:</font></em> </p>
+              <table align="center" bgcolor="#ffffcc" border="2" cellpadding="1" cellspacing="0" width="100%">
+                  <tbody>
+                    <tr bgcolor="#ffcc66">
+                      <td bgcolor="#ffcc66" height="20" width="66"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>Client</strong> <strong>(10.0.0.1)</strong> </font></div></td>
+                      <td bgcolor="#ffcc66" width="67"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>IP src</strong> </font></div></td>
+                      <td bgcolor="#ffcc66" width="74"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>IP dst </strong></font></div></td>
+                      <td bgcolor="#ffcc66" width="65"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>TCP 
+                        type flag</strong></font></div></td>
+                      <td bgcolor="#ffcc66" width="141"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>TCP 
+                        destination port</strong></font></div></td>
+                      <td bgcolor="#ffcc66" width="89"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>Server</strong> <strong>(10.0.0.252) </strong></font></div></td>
+                    </tr>
+                    <tr>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>---&gt;</strong></font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.1</font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.252</font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">SYN</font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">5200</font></div></td>
+                      <td><div align="center"><font color="#33cc66" face="Arial, Helvetica, sans-serif" size="2"><strong>OK</strong></font></div></td>
+                    </tr>
+                    <tr>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>---&gt;</strong></font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.1</font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.252</font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">SYN</font></div></td>
+                      <td width="141"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">5400</font></div></td>
+                      <td><div align="center"><font color="#33cc66" face="Arial, Helvetica, sans-serif" size="2"><strong>OK</strong></font></div></td>
+                    </tr>
+                    <tr>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>---&gt;</strong></font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.1</font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.252</font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">SYN</font></div></td>
+                      <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">5600</font></div></td>
+                      <td><div align="center"><font color="#33cc66" face="Arial, Helvetica, sans-serif" size="2"><strong>OK</strong></font></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              <table align="center" bgcolor="#ffffcc" border="1" cellspacing="0" width="100%">
+                  <tbody>
+                    <tr>
+                      <td height="42" width="544"><font face="Arial, Helvetica, sans-serif" size="2"><strong> Server:</strong> Correct sequence received! It matches with 
+                        [open SSH] name sequence!<br>
+                        Let's execute: /sbin/iptables -I INPUT -s <strong>10.0.0.1</strong> -p tcp --dport 
+                        22 -j ACCEPT</font></td>
+                    </tr>
+                  </tbody>
+                </table>
+              <br>
+              <table align="center" bgcolor="#ffffcc" border="2" cellpadding="1" cellspacing="0" width="100%">
+                <tbody>
+                  <tr bgcolor="#ffcc66">
+                    <td height="20" width="66"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>Client</strong> <strong>(10.0.0.1)</strong> </font></div></td>
+                    <td width="67"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>IP src</strong> </font></div></td>
+                    <td width="74"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>IP dst </strong></font></div></td>
+                    <td width="65"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>TCP 
+                      type flag</strong></font></div></td>
+                    <td width="141"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>TCP 
+                      destination port</strong></font></div></td>
+                    <td width="89"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>Server</strong> <strong>(10.0.0.252) </strong></font></div></td>
+                  </tr>
+                  <tr>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>---&gt;</strong></font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.1</font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.252</font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">SYN</font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">2543</font></div></td>
+                    <td><div align="center"><font color="#33cc66" face="Arial, Helvetica, sans-serif" size="2"><strong>OK</strong></font></div></td>
+                  </tr>
+                  <tr>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>---&gt;</strong></font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.1</font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.252</font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">SYN</font></div></td>
+                    <td width="141"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">2630</font></div></td>
+                    <td><div align="center"><font color="#33cc66" face="Arial, Helvetica, sans-serif" size="2"><strong>OK</strong></font></div></td>
+                  </tr>
+                  <tr>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><strong>---&gt;</strong></font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.1</font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">10.0.0.252</font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">SYN</font></div></td>
+                    <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">52870</font></div></td>
+                    <td><div align="center"><font color="#33cc66" face="Arial, Helvetica, sans-serif" size="2"><strong>OK</strong></font></div></td>
+                  </tr>
+                </tbody>
+              </table>
+              <table align="center" bgcolor="#ffffcc" border="1" cellspacing="0" width="100%">
+                  <tbody>
+                    <tr>
+                      <td height="42" width="544"><font face="Arial, Helvetica, sans-serif" size="2"><strong>Server:</strong> Correct sequence received! It matches with [close SSH] name 
+                        sequence!<br>
+                        Let's execute: /sbin/iptables -D INPUT -s <strong>10.0.0.1</strong> -p tcp --dport 
+                        22 -j ACCEPT</font></td>
+                    </tr>
+                  </tbody>
+                </table>
+              <br />
+              <strong><font face="Arial, Helvetica, sans-serif" size="2">Installation</font></strong>
+              <p><font face="Arial, Helvetica, sans-serif" size="2">To run pypk 
+                you'll need:</font></p>
+              <ul>
+                <li><font face="Arial, Helvetica, sans-serif" size="2"><strong><a href="http://127.0.0.1/billiejoex/www.python.org">Python</a></strong> interpreter <a href="http://www.python.org/download/" target="_blank"></a> (recommended version: <strong>2.4</strong>).</font></li>
+                <li><font face="Arial, Helvetica, sans-serif" size="2"><strong><a href="http://127.0.0.1/billiejoex/www.tcpdump.org">Libcap</a></strong> 
+                   <strong>0.7.2 </strong>or newer if you're running a *NIX platform.</font></li>
+                <li><font face="Arial, Helvetica, sans-serif" size="2"> <strong><a href="http://127.0.0.1/billiejoex/www.winpcap.org">Winpcap 
+                  3.1</a></strong>, if you're running a Windows platform</font><font face="Arial, Helvetica, sans-serif">.</font></li>
+                <li><font face="Arial, Helvetica, sans-serif"><strong><font size="2"><a href="http://127.0.0.1/billiejoex/www.oss.coresecurity.com/projects/pcapy.html"> Pcapy</a></font></strong> <font face="Arial, Helvetica, sans-serif" size="2"><strong>0.10.4</strong></font> <font size="2">extension.</font></font></li>
+                <li><font face="Arial, Helvetica, sans-serif" size="2"><strong>Pywin32</strong> extension (optional) if you're running a Windows platform.</font></li>
+              </ul>
+              <p><font face="Arial, Helvetica, sans-serif" size="2">...or <u>only 
+                Winpcap 3.1</u> if you plan to use win32 installer / win32 precompiled binaries. <br>
+                You 
+                        can install dependencies from sources (it may requires the installation 
+                        of third-party packages like gcc, g++ or libc6) or use a package 
+                      managers like apt, yum, etc...<br>
+If you're using a UNIX like platform, first install all dependencies,
+then unpack pypk distribution into a directory and run "<strong>python setup.py install"</strong>:</font></p>
+              <table align="center" border="0" width="100%">
+                <tbody><tr>
+                  <td bgcolor="#ffffcc" height="50" valign="top" width="476"><font face="Arial, Helvetica, sans-serif" size="2">root@dst:~#<strong>   tar -zxvf [src]-pypk_v0.2.tar.gz<br>
+                    </strong>root@dst:~#<strong> cd [src]-pypk_v0.2<br>
+                  </strong>root@dst:~/[src]-pypk_v0.2# <strong>python setup.py install</strong> </font></td>
+                </tr>
+              </tbody></table>
+              <p><font face="Arial, Helvetica, sans-serif" size="2">If you're using a Windows system just run pypk win32 installer release or use win32 binaries distribution. </font></p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"><strong>Usage examples</strong></font></p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"> First
+                of all you need to configure knock daemon depending on your needs by editing <strong>knockd.conf </strong>file (<strong>/etc/knockd.conf</strong> on all UNIX like OSes).</font><br>
+                <font face="Arial, Helvetica, sans-serif" size="2">The example below illustrates a knockd running on a UNIX platform. <br>
+                  It listens 
+                  on <strong>eth0</strong> ethernet interface and uses<strong> iptables</strong> command to modify 
+                  firewall rules table. <br>
+                  Note 
+                  that all lines beginning with the <strong>'#'</strong> character (comment) are 
+                  ignored. <br>
+                  All lines beginning with <strong>" [ "</strong> character are considered sequences. <br>
+                  Every sequence must contain at least two entries: <strong>"sequence=&lt;seq&gt;"</strong> and <strong>"commnad=&lt;cmd&gt;"</strong>.<br>
+                  The optional keyword <strong>%IP%</strong> contained in command's argument is referred to <u>knocker's IP source address</u> and it will be automatically translated by knockd at run time. <br>
+                <strong>keeps_count=[Open SSH]</strong> option used in this examples means that knockd will execute <em>[Close SSH]</em> sequence's command for every time <em>[Open SSH]</em> sequence is being satisfied in the past. For example: if knocker completes <em>[Open SSH]</em> sequence for <u>3 times</u>, then <em>[Close SSH]</em> <u>just for one time</u>, <em>[Close SSH]</em> sequence's command will be executed for <u>3 times</u>.</font></p>
+              <table align="center" border="0" width="100%">
+                <tbody><tr>
+                  <td bgcolor="#ffffcc" width="524"><font color="#ff0000" face="Arial, Helvetica, sans-serif" size="2"># 
+                        knockd.conf</font><font face="Arial, Helvetica, sans-serif" size="2"><font color="#ff0000"><br>
+                        <br>
+# Default ethernet interface on which knockd listens on</font><br>
+<strong>interface</strong>=eth0<br>
+<br>
+                        </font><font color="#ff0000" face="Arial, Helvetica, sans-serif" size="2"># 
+                                        Log file location</font><font face="Arial, Helvetica, sans-serif" size="2"><br>
+                                        <strong>logfile</strong>=<strong>/</strong>var<strong>/</strong>log<strong>/</strong>knockd.log</font><font color="#ff0000" face="Arial, Helvetica, sans-serif" size="2"><br>
+                                        <br>
+# 
+                                                      Sequence timeout</font><font face="Arial, Helvetica, sans-serif" size="2"><br>
+                                                      <strong>timeout</strong>=5<br>
+                                                      <br>
+                                                      </font><font color="#ff0000" face="Arial, Helvetica, sans-serif" size="2"># Sequence number 1 <br>
+                                                      </font><font face="Arial, Helvetica, sans-serif" size="2"><strong>[open SSH]</strong><br>
+                                                      <strong>sequence=</strong><font color="#0099cc">5100</font>,<font color="#0099cc">5200</font>,<font color="#0099cc">5300</font><br>
+                                                      <strong>command=</strong>/sbin/iptables 
+                              -I INPUT -s <strong>%IP%</strong> -p tcp --dport 22 -j ACCEPT<br>
+                              <br>
+                                                      </font><font color="#ff0000" face="Arial, Helvetica, sans-serif" size="2"># 
+                          Sequence number 2 </font><font face="Arial, Helvetica, sans-serif" size="2"><br>
+                          <strong>[close SSH]</strong><br>
+                          <strong>sequence</strong>=<font color="#0099cc">7555</font>,<font color="#0099cc">7560</font>,<font color="#0099cc">7565</font><br>
+                          <strong>command</strong>=/sbin/iptables 
+                    -D INPUT -s <strong>%IP%</strong> -p tcp --dport 22 -j ACCEPT </font><font face="Arial, Helvetica, sans-serif"><font size="2"><strong>keeps_count</strong>=[open SSH]</font></font></td>
+                </tr>
+              </tbody></table>
+              <p><font face="Arial, Helvetica, sans-serif" size="2">This is an example configuration of a knockd running on a Windows 
+                platform. Knockd listens on <strong>all</strong> ethernet interfaces thanks to special argument <strong>all</strong> used in the <strong>interface</strong>
+statement, and use netsh.exe utility to modify Windows firewall rules
+table (note: netsh.exe is available only on some latest Windows NT
+versions).</font>              </p>
+              <table align="center" border="0" width="100%">
+                <tbody><tr>
+                  <td bgcolor="#ffffcc" height="351" valign="top"><p><font color="#ff0000" face="Arial, Helvetica, sans-serif" size="2"># 
+                    knockd.conf<br>
+                    </font><font face="Arial, Helvetica, sans-serif" size="2"><font color="#ff0000"><br>
+                      # Default ethernet interface on which knockd listens on</font><br>
+  <strong>interface</strong>=<strong>ALL</strong><br>
+                    </font><font face="Arial, Helvetica, sans-serif"><font color="#ff0000" size="2"><br>
+                      # Log file location</font><font size="2"><br>
+  <strong>logfile</strong>=knockd.log<br>
+  </font><font color="#ff0000" size="2"><br>
+    # 
+    Sequence timeout</font><font size="2"><br>
+      <strong>timeout</strong>=5</font></font></p>
+                    <p><font face="Arial, Helvetica, sans-serif"><font color="#ff0000" size="2"># 
+                      Sequence number 1 <br>
+                      </font><font size="2"><strong>[open TELNET]</strong><br>
+                      <strong>sequenc</strong>e=</font><font face="Arial, Helvetica, sans-serif" size="2"><font color="#0099cc">5000</font>,<font color="#0099cc">5005</font>,<font color="#0099cc">5005</font></font><font size="2"><br>
+                      <strong>command</strong>=C:\WINDOWS\system32\netsh 
+                        firewall add portopening protocol=TCP port=23 name=TELNET 
+                        mode=ENABLE scope=CUSTOM addresses=<strong>%IP%</strong></font><br>
+                          <br>
+                          <font color="#ff0000" size="2"># 
+                            Sequence number 2 <br>
+                          </font><font size="2"><strong>[close TELNET]</strong><br>
+                          <strong>sequence</strong>=<font color="#0099cc">2000</font>,<font color="#0099cc">2100</font>,<font color="#0099cc">2200</font><br>
+                          <strong>command</strong>=C:\WINDOWS\system32\netsh firewall delete portopening protocol=TCP port=23</font></font></p></td>
+                </tr>
+              </tbody></table>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"> Once you modified knockd.conf just  run <strong>knockd  </strong> if you're on Linux or on all other POSIX platforms. If you're using Windows run <strong>knockd.exe</strong> instead.<br>
+                Knock daemon should start listening on ethernet interface(s) waiting for sequences:</font>              </p>
+              <table align="center" border="0" width="100%">
+                  <tbody><tr>
+                    <td bgcolor="#ffffcc" width="481"><font face="Arial, Helvetica, sans-serif" size="2">root@dst:~# <strong>knockd</strong> <strong><em><br>
+                      </em></strong><em>Py-port knock daemon v0.2<br>
+                      Started at: 2006-Nov-07 02:32:00<br>
+                      Total available interfaces: 3<br>
+                      Listening on:<br>
+                      <br>
+                      Name: eth0<br>
+                        Net:  10.0.0.0<br>
+                        Mask: 255.255.255.0</em></font></td>
+                  </tr>
+                </tbody></table>
+              <p><font face="Arial, Helvetica, sans-serif" size="2">Finally move to the client and use <strong>knocker</strong> / <strong>knocker.exe</strong> to send  sequences:</font>              </p>
+              <table align="center" border="0" width="100%">
+                <tbody><tr>
+                  <td bgcolor="#ffffcc"><font face="Arial, Helvetica, sans-serif" size="2">user@dst:~# <strong><em>knocker 10.0.0.1 1000,1001,1002 <br>
+</em></strong><em>Knocked on 10.0.0.1:1000<br>
+Knocked on 10.0.0.1:1001<br>
+Knocked on 10.0.0.1:1002<br></em>user@dst:~#</font></td>
+                </tr>
+              </tbody></table>
+              <p><font face="Arial, Helvetica, sans-serif" size="2">If sequence is right (knockd sends no acknowledgements) now you should be able to connect over SSH / Telnet port.</font>              </p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"><strong>Portability</strong></font></p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2">Pypk has been tested under <strong>Linux</strong> Debian, Linux Ubuntu and <strong>Windows</strong> XP SP2 systems and is known to work there, but it ought to work on any system where Python and libpcap are available (<strong>MacOS</strong>, <strong>BSD*</strong>, <strong>Sun Solaris</strong>, <strong>POSIX</strong>
+in general). If you have one of these platforms I would be very
+thankful if you could give me a report of your experience with pypk.</font> </p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"><strong> Known 
+                bug(s)</strong></font></p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2">None, at 
+                the moment.</font></p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"><strong>Some ideas (extra features not yet implemented) </strong></font></p>
+              <ul>
+                <li><font face="Arial, Helvetica, sans-serif" size="2">Authentication
+(take a look at TODO.TXT file contained in pypk distribution for more
+details. It contains some ideas about adding various form of
+authentication at pypk).</font></li>
+                <li><font face="Arial, Helvetica, sans-serif" size="2">UDP and 
+                  ICMP protocols support to enlarge the range of possible sequence 
+                  combinations.</font></li>
+                <li><font face="Arial, Helvetica, sans-serif" size="2">Implementation of 
+                  a fully customizable system permitting the user to manage a 
+                  large gamma of packet's header parameters on different layers 
+                  or their payload, enlarging the range of possible sequence combinations. 
+                  Some examples:<br>
+                  </font><font face="Arial, Helvetica, sans-serif" size="2">IP: 
+                    TTL, id, src...<br>
+                    TCP: type (SYN, ACK, RST, FIN...), src_port, seq_n, opts...<br>
+                    ICMP: type (ECHO, ECHO_REPLY, PORT_UNREACHABLE...), code, id...</font></li>
+              </ul>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"><strong>Useful 
+                links</strong></font></p>
+              <p><font face="Arial, Helvetica, sans-serif" size="2"><a href="http://127.0.0.1/billiejoex/www.portknocking.org">www.portknocking.org</a> - A lot of informations about port knocking.</font></p>
+              <p>&nbsp;</p></td>
+          </tr>
+        </tbody>
+      </table></td>
+      <td height="3481" valign="top" width="375"><div align="left">
+          <table align="center" border="0" height="98%" width="98%">
+            <tbody>
+              <tr>
+                <td height="150" valign="top" width="365"><br>
+                  <br>
+                  <table border="0" width="310">
+                  <tbody>
+                    <tr>
+                      <td valign="middle" width="246"><font face="Arial, Helvetica, sans-serif"><strong><u>Screenshots <a name="10" id="10"></a> </u></strong></font></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                    <p><font face="Arial, Helvetica, sans-serif"><a href="images/pypk1.jpg"><img src="images/pypk1_small.jpg" border="0" height="221" width="250"></a></font></p>
+                    <p><font size="2"><em><font face="Arial, Helvetica, sans-serif"><strong>Fig 1:</strong> Opening SSH server on a linux box.</font></em></font></p>
+                    <p><em><font face="Arial, Helvetica, sans-serif" size="2"><br>
+                      </font></em><font face="Arial, Helvetica, sans-serif"><strong><u>FAQs</u></strong></font> <font face="Arial, Helvetica, sans-serif"><strong><u><a name="11" id="11"></a></u></strong></font></p>
+                    <p><font face="Arial, Helvetica, sans-serif" size="2"><strong>On 
+                      which network types does knock daemon work?<br>
+                      Which network adapters are supported by knock daemon?</strong><br>
+                      <br>
+                      Knock daemon only works on ethernet based networks. If you're using 
+                      something different from an ethernet interface card, like a modem, 
+                      knock daemon won't work.<br>
+                      <br>
+                      <strong>Does knock daemon can work on loopback (127.0.0.1) devices?</strong></font><font face="Arial, Helvetica, sans-serif"><br>
+                        <font size="2"><br>
+                          Excepting Windows 
+                          systems knock daemon <u>can</u> work on loopback devices. This is a 
+                          limitation of Windows systems and not of pcap API.</font></font></p>
+                      <p><font face="Arial, Helvetica, sans-serif" size="2"><strong>I have a process listening on TCP port X. Can I use that port inside a sequence?</strong></font></p>
+                    <p><font face="Arial, Helvetica, sans-serif" size="2">Theorically you can  because "knocker" utility send unique TCP SYN packets and knockd accept only that types. <br>
+Practically, if another process establishes a connection over port X,
+knockd will assume the first SYN packet of the three-way handshake
+process as a "knock" and this could cause problems if a knocking
+session is taking place in that time.</font></p>
+                      <p><font face="Arial, Helvetica, sans-serif" size="2"><strong>How do I run knock daemon in background on Windows?</strong></font></p>
+                    <p><font face="Arial, Helvetica, sans-serif" size="2">If you're  using sources just run (from command prompt) <strong>knockdw.pyw</strong> instead of knockd.py. If you're using win32 binaries  
+                      use <strong>knockdw.exe</strong> instead of knockd.exe.</font><br>
+                      <br>
+                    </p>
+                    <p align="right"><font face="Arial, Helvetica, sans-serif"><em><font size="2">billiejoex 2006-10-26 </font></em></font></p>
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
+                  <p>&nbsp;</p></td></tr>
+            </tbody>
+          </table>
+        </div></td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+</body></html>
